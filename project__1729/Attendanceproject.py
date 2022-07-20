@@ -4,19 +4,25 @@ import face_recognition as fr
 import os
 from datetime import datetime
 
+
+# it is the directory where all the images are stored
 path = 'imageatt'
 images = []
 classname= []
 my_list = os.listdir(path)
-# print(my_list)
+
 
 for candidate in my_list:
+    
     current_img = cv.imread(f'{path}/{candidate}')
+    # appends the read images to the 'images' list
     images.append(current_img)
+    # appends the names of the photos to the 'classname' list
     classname.append(os.path.splitext(candidate)[0])
 
 print(classname)
 
+#function that returns the encoded images as a list
 def find_encodings(images):
     encode_list = []
     for img in images:
@@ -24,6 +30,9 @@ def find_encodings(images):
         encoding = fr.face_encodings(img)[0]
         encode_list.append(encoding)
     return encode_list
+
+
+#function to save attendence in csv file and to print done attendence
 def mark_attendance(name):
     with open('Attendance.csv','r+') as f:
         my_data_list =f.readlines()
@@ -39,7 +48,7 @@ def mark_attendance(name):
             print("Done,",name)
 
 
-
+#encoding the images
 encode_list_known=find_encodings(images)
 print("Encoding Completed,starting webcam.....")
 
@@ -55,7 +64,7 @@ while True:
         face_dis = fr.face_distance(encode_list_known, encode_face)
         # print(face_dis)
         match_index = np.argmin(face_dis)
-        if face_dis[match_index]<0.45:
+        if matches[match_index]>0.15:
             name=classname[match_index].upper()
             mark_attendance(name)
         else:
